@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextShare - Share Text Instantly</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-copy {
+            background: #f0f0f0;
+            color: #333;
+            display: none;
+        }
+
+        .btn-copy:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-copy.show {
+            display: block;
+        }
+
+        .url-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #d0d0d0;
+            word-break: break-all;
+            font-size: 13px;
+            color: #555;
+            display: none;
+        }
+
+        .url-display.show {
+            display: block;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .read-only-mode {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .read-only-mode h2 {
+            color: #2e7d32;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="readOnlyBanner" class="read-only-mode" style="display: none;">
+            <h2>📖 Viewing Shared Text</h2>
+            <p style="color: #555; font-size: 14px;">This text was shared with you. Edit below to create your own link.</p>
+        </div>
+
+        <h1>✨ TextShare</h1>
+        <p class="subtitle">Share text instantly via URL - no server needed!</p>
+
+        <textarea id="textInput" placeholder="Type or paste your text here..."></textarea>
+
+        <div class="button-group">
+            <button class="btn-generate" onclick="generateLink()">🔗 Generate Link</button>
+            <button class="btn-copy" id="copyBtn" onclick="copyLink()">📋 Copy Link</button>
+        </div>
+
+        <div class="url-display" id="urlDisplay"></div>
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const urlDisplay = document.getElementById('urlDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+        const status = document.getElementById('status');
+        const readOnlyBanner = document.getElementById('readOnlyBanner');
+        let generatedUrl = '';
+
+        // Check if URL contains encoded text
+        window.addEventListener('load', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedText = urlParams.get('t');
+            
+            if (encodedText) {
+                try {
+                    const decodedText = atob(encodedText);
+                    textInput.value = decodedText;
+                    readOnlyBanner.style.display = 'block';
+                    showStatus('Text loaded successfully!', 'success');
+                } catch (error) {
+                    showStatus('Error decoding text. Invalid URL.', 'error');
+                }
+            }
+        });
+
+        function generateLink() {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showStatus('Please enter some text first!', 'error');
+                return;
+            }
+
+            try {
+                // Encode text to base64
+                const encodedText = btoa(unescape(encodeURIComponent(text)));
+                
+                // Generate URL
+                const baseUrl = window.location.origin + window.location.pathname;
+                generatedUrl = `${baseUrl}?t=${encodedText}`;
+                
+                // Display URL
+                urlDisplay.textContent = generatedUrl;
+                urlDisplay.classList.add('show');
+                copyBtn.classList.add('show');
+                
+                showStatus('Link generated! Share it to view on any device.', 'success');
+            } catch (error) {
+                showStatus('Error generating link. Text might be too long.', 'error');
+            }
+        }
+
+        function copyLink() {
+            if (!generatedUrl) return;
+            
+            navigator.clipboard.writeText(generatedUrl).then(() => {
+                showStatus('✅ Link copied to clipboard!', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = generatedUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showStatus('✅ Link copied to clipboard!', 'success');
+            });
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = 'status show ' + type;
+            
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // Auto-hide URL display when user starts typing again
+        textInput.addEventListener('input', function() {
+            if (generatedUrl) {
+                urlDisplay.classList.remove('show');
+                copyBtn.classList.remove('show');
+                generatedUrl = '';
+            }
+        });
+    </script>
+</body>
+</html>
