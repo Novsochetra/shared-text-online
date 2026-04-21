@@ -93,21 +93,6 @@ Works on all modern browsers:
 - ✅ Opera
 - ✅ Samsung Internet
 
-## 📦 Installation
-
-**Option 1: Download & Open**
-1. Download the `index.html` file
-2. Open it in your browser
-3. Bookmark for easy access!
-
-**Option 2: Host it Yourself**
-- Upload to GitHub Pages (free hosting)
-- Host on Netlify/Vercel (free tier)
-- Put on your own web server
-
-**Option 3: Use Directly**
-Just open the HTML file from anywhere - USB drive, Dropbox, Google Drive!
-
 ## 🎯 Quick Start Example
 
 1. Open TextShare on your computer
@@ -116,51 +101,12 @@ Just open the HTML file from anywhere - USB drive, Dropbox, Google Drive!
 4. Send link to your phone (email, messaging app, etc.)
 5. Open link on phone - your shopping list appears!
 
-## ⚡ Pro Tips
-
-- **Bookmark Links** - Save frequently used text as bookmarks
-- **QR Codes** - Use a QR generator to create codes for your links
-- **URL Shorteners** - Use bit.ly or tinyurl for cleaner links
-- **Desktop Widget** - Pin the page for quick access
-- **Share Multiple Items** - Generate multiple links for different texts
-
-## 🔮 Future Ideas
-
-Want to see new features? Here are some possibilities:
-- Character/word counter
-- QR code generation built-in
-- Download text as .txt file
-- Markdown rendering
-- Syntax highlighting for code
-- Expiring links (optional)
-- Password protection (optional)
-
-## 📄 License
-
-Free to use, modify, and share! No restrictions.
-
-## 🤝 Contributing
-
-This is a simple standalone HTML file. Feel free to fork and customize:
-- Add your own color schemes
-- Include additional features
-- Translate to other languages
-- Make it your own!
-
 ## ⚠️ Limitations
 
 - Very long text (>10,000 chars) may create extremely long URLs
 - Some apps may truncate very long URLs
 - Text is not encrypted (visible in URL)
 - Not suitable for highly sensitive information
-
-## 🎓 Technical Details
-
-- **Size:** Single HTML file (~5KB)
-- **Dependencies:** None! Pure vanilla JavaScript
-- **Encoding:** Base64 with UTF-8 support
-- **Framework:** None - just HTML, CSS, JavaScript
-- **Storage:** None - everything in URL parameters
 
 ## 📞 Support
 
